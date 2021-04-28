@@ -39,27 +39,17 @@ int main() {
     cout.tie(NULL);
 
     string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
+    vector<vector<int>> dp(s.size() + 1, vector<int>(2, inf));
+    dp[0][0] = 0;
+    dp[0][1] = 1;
 
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
-    }
-
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
-
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
+    for(int i = 1; i <= s.size(); i++) {
+        for(int k = 0; k < 2; k++) {
+            int cur = (s[i - 1] - '0' + k);
+            if(cur < 10) dp[i][k] = min(dp[i][k], dp[i - 1][0] + cur);
+            dp[i][k] = min(dp[i][k], dp[i - 1][1] + 10 - cur);
         }
     }
 
-    cout << ans + (k == 0) << endl;
+    cout << dp[s.size()][0] << endl;
 }

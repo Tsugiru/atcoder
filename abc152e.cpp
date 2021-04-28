@@ -28,38 +28,54 @@ struct pair_hash {
 
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
-const int MOD = 1000000007;
+const ll MOD = 1000000007;
 const ll INF = numeric_limits<ll>::max();
 const int inf = 1e7;
-const int MX = 100001; //check the limits, dummy
+const int MX = 100001; 
+
+struct Res {
+    ll g, x, y;
+};
+
+Res gcd(ll a, ll b) {
+    if(b == 0) return {a, 1, 0};
+    Res r = gcd(b, a % b);
+    return {r.g, r.y, r.x - r.y * (a / b)};
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
-
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
-    }
-
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
-
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
+    int n; cin >> n;
+    vector<ll> a(n);
+    unordered_map<int, int> occ;
+    for(ll &i : a) {
+        cin >> i;
+        ll tmp = i;
+        for(int j = 2; j * j <= tmp; j++) {
+            int cnt = 0;
+            while(tmp % j == 0) {
+                cnt++;
+                tmp /= j;
+            }
+            occ[j] = max(occ[j], cnt);
         }
+        if(tmp) occ[tmp] = max(occ[tmp], 1);
     }
 
-    cout << ans + (k == 0) << endl;
+    ll lcm = 1LL;
+    for(const auto &p : occ)
+        for(int i = 0; i < p.second; i++)
+            lcm = (lcm * p.first) % MOD;
+
+    ll sum = 0LL;
+    for(ll &i : a) {
+        ll iinv = gcd(ll(MOD), i).y;
+        iinv = (iinv + MOD) % MOD;
+        sum = (sum + (iinv * lcm) % MOD) % MOD;
+    }
+
+    cout << sum << endl;
 }

@@ -70,28 +70,42 @@ const int MOD = 1000000007;
 const ll INF = numeric_limits<ll>::max();
 const int inf = numeric_limits<int>::max();
 const int MX = 100001; //check the limits, dummy
-const int eos = string::npos;
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
+    // string s; cin >> s;
+    // ll i = s.find_first_of('<'), n = sz(s);
+    // ll sum = i != eos ? i * (i + 1) / 2 : n * (n + 1) / 2;
+    // for(; i != eos && i < n; i++) {
+    //     if(s[i] == '>' && s[i - 1] == '<') {
+    //         ll r = i, l = i - 1;
+    //         while(r < n && s[r] != '<') r++;
+    //         while(l >= 0 && s[l] != '>') l--;
+    //         ll a = r - i, b = i - 1 - l;
+    //         sum += max(a, b) * (max(a, b) + 1) / 2
+    //             + min(a, b) * (min(a, b) - 1) / 2;
+    //     }
+    // }
+
+    // i = s.find_last_of('>');
+    // sum += i != eos ? (n - i - 1) * (n - i) / 2 : n * (n + 1) / 2;
+    // cout << sum << endl;
+
     string s; cin >> s;
-    ll i = s.find_first_of('<'), n = sz(s);
-    ll sum = i != eos ? i * (i + 1) / 2 : n * (n + 1) / 2;
-    for(; i != eos && i < n; i++) {
-        if(s[i] == '>' && s[i - 1] == '<') {
-            ll r = i, l = i - 1;
-            while(r < n && s[r] != '<') r++;
-            while(l >= 0 && s[l] != '>') l--;
-            ll a = r - i, b = i - 1 - l;
-            sum += max(a, b) * (max(a, b) + 1) / 2
-                + min(a, b) * (min(a, b) - 1) / 2;
-        }
+    s += "<";
+    vector<int> v(s.size());
+    for(int i = 0, cur = 0; i < v.size(); i++) {
+        if(s[i] == '>') { v[i] = cur; cur = 0; }
+        else v[i] = cur++;
+    }
+    
+    for(int i = v.size() - 1, cur = 0; i >= 0; i--) {
+        if(s[i] == '<') { cur = 1; }
+        else v[i] = max(cur++, v[i]);
     }
 
-    i = s.find_last_of('>');
-    sum += i != eos ? (n - i - 1) * (n - i) / 2 : n * (n + 1) / 2;
-    cout << sum << endl;
+    cout << accumulate(begin(v), end(v), 0LL) << endl;
 }

@@ -33,33 +33,42 @@ const ll INF = numeric_limits<ll>::max();
 const int inf = 1e7;
 const int MX = 100001; //check the limits, dummy
 
+pair<int, bool> dfs(int a, int prev, unordered_set<int> &s, 
+    unordered_map<int, vector<int>> &mp) {
+        if(s.count(a)) {
+            return {0, false};
+        }
+        pair<int, bool> res{1, true};
+        s.insert(a);
+        for(int next : mp[a]) {
+            if(next != prev) {
+                auto [ret_cnt, ret_cycle] = dfs(next, a, s, mp);
+                res.first += ret_cnt;
+                res.second &= ret_cycle;
+            }
+        }
+        return res;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
-
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
+    int n; cin >> n;
+    unordered_map<int, vector<int>> g;
+    for(int i = 0, a, b; i < n; i++) {
+        cin >> a >> b;
+        g[a].push_back(b);
+        g[b].push_back(a);
     }
 
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
-
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
-        }
+    unordered_set<int> vis;
+    int res = 0;
+    for(const auto &[a, b] : g) {
+        const auto [num, cyc] = dfs(a, -1, vis, g);
+        res += num - cyc;
     }
 
-    cout << ans + (k == 0) << endl;
+    cout << res << endl;
 }

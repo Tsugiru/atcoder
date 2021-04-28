@@ -38,28 +38,21 @@ int main() {
     cin.tie(NULL);
     cout.tie(NULL);
 
-    string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
-
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
+    unordered_map<string, int> occ;
+    int n; cin >> n;
+    for(int i = 0; i < n; i++) {
+        string s; cin >> s;
+        occ[s]++;
     }
 
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
+    vector<pair<int, string>> v;
+    for(auto &p : occ) v.push_back({p.second, p.first});
+    sort(begin(v), end(v));
 
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
-        }
-    }
+    vector<string> sol;
+    for(int i = v.size() - 1, cnt = v.back().first; i >= 0 && v[i].first == cnt; i--)
+        sol.push_back(v[i].second);
 
-    cout << ans + (k == 0) << endl;
+    sort(begin(sol), end(sol));
+    for(string &s : sol) cout << s << endl;
 }

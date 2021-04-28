@@ -28,38 +28,48 @@ struct pair_hash {
 
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
-const int MOD = 1000000007;
+const ll MOD = 1000000007;
 const ll INF = numeric_limits<ll>::max();
 const int inf = 1e7;
 const int MX = 100001; //check the limits, dummy
+
+ll p(ll n, ll x) {
+    ll ans = 1, cur = n;
+    while(x) {
+        if(x & 1) ans = (cur * ans) % MOD;
+        cur = (cur * cur) % MOD;
+        x >>= 1;
+    }
+    return ans;
+}
+
+struct Res {
+    ll g, x, y;
+};
+
+Res modinv(ll a, ll b) {
+    if(b == 0) return {a, 1, 0};
+    Res prev = modinv(b, a % b);
+    return {prev.g, prev.y, prev.x - a / b * prev.y};
+}
+
+ll ncr(ll n, ll r) {
+    ll ans = 1, den = 1;
+    for(int i = n; i > n - r; i--) ans = (ans * i) % MOD;
+    for(int i = 2; i <= r; i++) den = (den * i) % MOD;
+    ll inv = (modinv(den, MOD).x + MOD) % MOD;
+    return (ans * inv) % MOD;
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
-
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
-    }
-
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
-
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
-        }
-    }
-
-    cout << ans + (k == 0) << endl;
+    ll n, a, b;
+    cin >> n >> a >> b;
+    ll x = p(2, n);
+    ll y = ncr(n, a);
+    ll z = ncr(n, b);
+    cout << (x - y - z - 1 + 3*MOD) % MOD << endl; 
 }

@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "g++ build active file debug",
+      "command": "/usr/bin/g++",
+      "args": ["-g", "${file}", "-o", "${fileDirname}/${fileBasenameNoExtension}", "-std=c++17"],
+      "options": {
+        "cwd": "/usr/bin"
+      },
+      "problemMatcher": ["$gcc"],
+    },
+    {
+      "type": "shell",
+      "label": "g++ build active file",
+      "command": "/usr/bin/g++",
+      "args": ["${file}", "-o", "${fileDirname}/${fileBasenameNoExtension}", "-std=c++17"],
+      "options": {
+        "cwd": "/usr/bin"
+      },
+      "problemMatcher": ["$gcc"],
+    },
+    {
+      "type": "shell",
+      "label": "run active file",
+      "command": "./${fileBasenameNoExtension}",
+      "args": ["<", "input.txt"],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "dependsOn": ["g++ build active file"]
+    },
+    {
+      "type": "shell",
+      "label": "clean active file",
+      "command": "rm",
+      "args": ["${fileBasenameNoExtension}"],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": ["run active file"]
+    },
+    {
+      "type": "shell",
+      "label": "clean active file indep",
+      "command": "rm",
+      "args": ["${fileBasenameNoExtension}"],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+    }
+  ]
+}

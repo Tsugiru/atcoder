@@ -1,156 +1,80 @@
 #include <bits/stdc++.h>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <ext/pb_ds/assoc_container.hpp>
 
 using namespace std;
+using namespace __gnu_pbds;
+typedef long long ll;
 
-string ltrim(const string &);
-string rtrim(const string &);
-vector<string> split(const string &);
+struct int_hash {
+    static uint64_t splitmix64(uint64_t x) {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
 
+    size_t operator()(uint64_t x) const {
+        static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + FIXED_RANDOM);
+    }
+};
 
+struct pair_hash {
+    size_t operator()(pair<int, int> x) const {
+        return int_hash{}(x.first) ^ (int_hash{}(x.second) << 16);
+    }
+};
 
-/*
- * Complete the 'findBestCity' function below.
- *
- * The function is expected to return an INTEGER.
- * The function accepts following parameters:
- *  1. INTEGER distanceThreshold
- *  2. WEIGHTED_INTEGER_GRAPH city
- */
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
-/*
- * For the weighted graph, <name>:
- *
- * 1. The number of nodes is <name>_nodes.
- * 2. The number of edges is <name>_edges.
- * 3. An edge exists between <name>_from[i] and <name>_to[i]. The weight of the edge is <name>_weight[i].
- *
- */
+const int MOD = 1000000007;
+const ll INF = numeric_limits<ll>::max();
+const int inf = 1e7;
+const int MX = 100001; //check the limits, dummy
 
-int dijkstra(int s, int distanceThreshold, const vector<vector<pair<int, int>>> &adjList) {
-    vector<int> d(adjList.size(), numeric_limits<int>::max());
-    d[1] = 1;
-    set<pair<int, int>> q;
-    q.insert({0, s});
-    while(!q.empty()) {
-        int v = q.begin()->second;
-        q.erase(q.begin());
-
-        for(auto edge : adjList[v]) {
-            int next = edge.second;
-            int dist = edge.first;
-
-            if(d[v] + dist < d[next]) {
-                q.erase({d[next], next});
-                d[next] = d[v] + dist;
-                q.insert({d[next], next});
-            }
+vector<int> divisors(int x) {
+    vector<int> result;
+    for(int i = 1; i * i <= x; i++) {
+        if(x % i == 0) {
+            result.push_back(i);
+            if(i != x / i && x / i != x) result.push_back(x / i);
         }
     }
-
-    return count_if(begin(d), end(d), [distanceThreshold](int elem){ 
-        return elem <= distanceThreshold;
-    });
+    return result;
 }
 
-int findBestCity(int distanceThreshold, int city_nodes, vector<int> city_from, vector<int> city_to, vector<int> city_weight) {
-    vector<vector<pair<int, int>>> adjList(city_nodes + 1);
-    for(int i = 0; i < city_from.size(); i++) {
-        adjList[city_from[i]].push_back({city_weight[i], city_to[i]});
-        adjList[city_to[i]].push_back({city_weight[i], city_from[i]});
+array<int, 3> loveTriangle(int n) {
+    for(int i = 2; i < n; i++) {
+        vector<int> divs = divisors(i);
+        int first = accumulate(begin(divs), end(divs), 0LL);
+        vector<int> divs_first = divisors(first);
+        int second = accumulate(begin(divs), end(divs), 0LL);
+        vector<int> divs_second = divisors(second);
+        int third = accumulate(begin(divs), end(divs), 0LL);
+        if(third == i && first != second && second != third) return {i, first, second};
     }
-
-    int answer = 0, best = city_nodes;
-    for(int i = 1; i <= city_nodes; i++) {
-        int score = dijkstra(i, distanceThreshold, adjList);
-        if(score <= best) {
-            best = score;
-            answer = i;
-        }
-    }
-
-    return answer;
+    return {-1, -1, -1};
 }
 
-int main()
-{
-    ofstream fout(getenv("OUTPUT_PATH"));
+struct A {
+    int x;
+};
 
-    string distanceThreshold_temp;
-    getline(cin, distanceThreshold_temp);
+struct B {
+    int x;
+};
 
-    int distanceThreshold = stoi(ltrim(rtrim(distanceThreshold_temp)));
-
-    string city_nodes_edges_temp;
-    getline(cin, city_nodes_edges_temp);
-
-    vector<string> city_nodes_edges = split(rtrim(city_nodes_edges_temp));
-
-    int city_nodes = stoi(city_nodes_edges[0]);
-    int city_edges = stoi(city_nodes_edges[1]);
-
-    vector<int> city_from(city_edges);
-    vector<int> city_to(city_edges);
-    vector<int> city_weight(city_edges);
-
-    for (int i = 0; i < city_edges; i++) {
-        string city_from_to_weight_temp;
-        getline(cin, city_from_to_weight_temp);
-
-        vector<string> city_from_to_weight = split(rtrim(city_from_to_weight_temp));
-
-        int city_from_temp = stoi(city_from_to_weight[0]);
-        int city_to_temp = stoi(city_from_to_weight[1]);
-        int city_weight_temp = stoi(city_from_to_weight[2]);
-
-        city_from[i] = city_from_temp;
-        city_to[i] = city_to_temp;
-        city_weight[i] = city_weight_temp;
-    }
-
-    int result = findBestCity(distanceThreshold, city_nodes, city_from, city_to, city_weight);
-
-    fout << result << "\n";
-
-    fout.close();
-
-    return 0;
+template<typename T>
+T f(int x) {
+    if(x < 5) return A(x);
+    else return B(x);
 }
 
-string ltrim(const string &str) {
-    string s(str);
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 
-    s.erase(
-        s.begin(),
-        find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace)))
-    );
-
-    return s;
-}
-
-string rtrim(const string &str) {
-    string s(str);
-
-    s.erase(
-        find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(),
-        s.end()
-    );
-
-    return s;
-}
-
-vector<string> split(const string &str) {
-    vector<string> tokens;
-
-    string::size_type start = 0;
-    string::size_type end = 0;
-
-    while ((end = str.find(" ", start)) != string::npos) {
-        tokens.push_back(str.substr(start, end - start));
-
-        start = end + 1;
-    }
-
-    tokens.push_back(str.substr(start));
-
-    return tokens;
+    A a = f(3);
 }

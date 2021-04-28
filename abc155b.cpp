@@ -33,33 +33,19 @@ const ll INF = numeric_limits<ll>::max();
 const int inf = 1e7;
 const int MX = 100001; //check the limits, dummy
 
+bool check(const vector<int> &a) {
+    for(const int &i : a)
+        if(i % 2 == 0 && i % 3 != 0 && i % 5 != 0) return false;
+    return true;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
-
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
-    }
-
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
-
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
-        }
-    }
-
-    cout << ans + (k == 0) << endl;
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &i : a) cin >> i;
+    cout << (check(a) ? "APPROVED" : "DENIED") << endl;
 }

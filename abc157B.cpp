@@ -33,33 +33,44 @@ const ll INF = numeric_limits<ll>::max();
 const int inf = 1e7;
 const int MX = 100001; //check the limits, dummy
 
+bool checkVert(const vector<vector<int>> &v) {
+    for(int i = 0; i < 3; i++)
+        if(v[i][0] && v[i][0] == v[i][1] && v[i][1] == v[i][2])
+            return true;
+    return false;
+}
+
+bool checkHoriz(const vector<vector<int>> &v) {
+    for(int j = 0; j < 3; j++)
+        if(v[0][j] && v[0][j] == v[1][j] && v[1][j] == v[2][j])
+            return true;
+    return false;
+}
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
-    string s; cin >> s;
-    ll n = s.size();
-    ll k; cin >> k;
-    vector<vector<ll>> c(n + 1, vector<ll>(k + 1, 0));
-
-    c[0][0] = 1;
-    for(int i = 1; i <= n; i++) {
-        c[i][0] = 1;
-        for(int j = 1; j <= k; j++)
-            c[i][j] = c[i - 1][j - 1] + c[i - 1][j];
-    }
-
-    vector<int> pows{1, 9, 9 * 9, 9 * 9 * 9};
-
-    ll ans = 0;
-    for(int i = 0; i < n && n - i >= k && k; i++) {
-        if(s[i] != '0') {
-            ans += (s[i] - '0' - 1) * c[n - i - 1][k - 1] * pows[k - 1];
-            if(n - i - 1 >= k) ans += c[n - i - 1][k] * pows[k];
-            k--;
+    unordered_map<int, pair<int, int>> mp;
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++) {
+            int in; cin >> in;
+            mp[in] = {i, j};
         }
+
+    vector<vector<int>> v(3, vector<int>(3, 0));
+    int n; cin >> n;
+    for(int i = 0; i < n; i++) {
+        int in; cin >> in;
+        if(mp.count(in))
+            v[mp[in].first][mp[in].second] = 1;
     }
 
-    cout << ans + (k == 0) << endl;
+    if(checkHoriz(v) || checkVert(v) 
+        || v[0][0] && v[0][0] == v[1][1] && v[1][1] == v[2][2] 
+        || v[0][2] && v[0][2] == v[1][1] && v[1][1] == v[2][0])
+        cout << "Yes" << endl;
+    else
+        cout << "No" << endl;
 }
